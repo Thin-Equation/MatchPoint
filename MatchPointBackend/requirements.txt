@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+boto3
+pydantic
+PyPDF2
+openai
+python-multipart
+pyodbc

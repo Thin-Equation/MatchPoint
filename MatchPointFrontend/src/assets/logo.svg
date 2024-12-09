@@ -1,0 +1,25 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background rounded square -->
+    <rect x="10" y="10" width="180" height="180" rx="40" fill="#1A1B26" />
+
+    <!-- Blue accent border -->
+    <rect x="15" y="15" width="170" height="170" rx="35" fill="#4B7BF5" />
+
+    <!-- Main target icon -->
+    <circle cx="100" cy="80" r="35" fill="none" stroke="#FF6B4A" stroke-width="8"/>
+    <circle cx="100" cy="80" r="15" fill="#FF6B4A"/>
+    <line x1="100" y1="45" x2="100" y2="115" stroke="#FF6B4A" stroke-width="8"/>
+    <line x1="65" y1="80" x2="135" y2="80" stroke="#FF6B4A" stroke-width="8"/>
+
+    <!-- Text -->
+    <text x="100" y="140" font-family="Arial Black" font-size="24" fill="white" text-anchor="middle">
+        MATCH POINT
+    </text>
+    <text x="100" y="160" font-family="Arial" font-size="12" fill="white" text-anchor="middle">
+        A RESUME SCORING APP
+    </text>
+
+    <!-- Small icons -->
+    <circle cx="40" cy="40" r="10" fill="none" stroke="#FF6B4A" stroke-width="2"/>
+    <circle cx="160" cy="40" r="8" fill="#4B7BF5"/>
+</svg>
