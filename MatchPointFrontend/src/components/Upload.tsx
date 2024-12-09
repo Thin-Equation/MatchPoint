@@ -84,8 +84,9 @@ export default function Example() {
 
             if (uploadResponse.status === 200) {
                 // If upload is successful, call generate_feedback API
-                const resume_path = uploadResponse.data.resume_path;
-                const job_description_path = uploadResponse.data.job_description_path;
+                // console.log(uploadResponse.data);
+                const { resume_path, job_description_path } = uploadResponse.data;
+
                 const generateResponse = await axios.post('http://localhost:8000/api/generate_feedback', {
                     user_id: user?.sub,
                     resume_path: resume_path,

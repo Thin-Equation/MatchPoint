@@ -1,3 +1,4 @@
+from io import BytesIO
 import json
 from typing import List
 from openai import OpenAI
@@ -61,6 +62,11 @@ class UserDetails(BaseModel):
     last_ip: str
     last_login: str
     logins_count: int
+
+class FeedbackRequest(BaseModel):
+    user_id: str
+    resume_path: str
+    job_description_path: str
 
 @app.post("/api/user-details")
 async def receive_user_details(user_details: UserDetails):
@@ -133,7 +139,7 @@ async def upload_files(
         job_desc_key = f"{user_id}/job_description/{jd_name}.txt"
         s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=job_desc_key, Body=job_description)
 
-        return JSONResponse(content={
+        return JSONResponse(content=  {
             "message": "Files uploaded successfully to S3",
             "resume_path": f"s3://{S3_BUCKET_NAME}/{resume_key}",
             "job_description_path": f"s3://{S3_BUCKET_NAME}/{job_desc_key}"
@@ -149,75 +155,95 @@ async def upload_files(
         }, status_code=500)
 
 @app.post("/api/generate_feedback")
-async def generate_feedback(user_id: str, resume_path: str, job_description_path: str):
+async def generate_feedback(feedback_request: FeedbackRequest):
     s3_client = boto3.client('s3')
     
     try:
         # Extract bucket name and key from S3 paths
-        resume_bucket, resume_key = resume_path.replace("s3://", "").split("/", 1)
-        jd_bucket, jd_key = job_description_path.replace("s3://", "").split("/", 1)
+        resume_bucket, resume_key = feedback_request.resume_path.replace("s3://", "").split("/", 1)
+        jd_bucket, jd_key = feedback_request.job_description_path.replace("s3://", "").split("/", 1)
         
         # Retrieve resume content from S3
-        local_file = '/tmp/' + "1.pdf"
-        s3_client.download_file(resume_bucket, resume_key, local_file)
+        s3_object = s3_client.get_object(Bucket=resume_bucket, Key=resume_key)
+    
+        # Stream the PDF content into memory
+        pdf_stream = BytesIO(s3_object['Body'].read())
+    
 
-        with open(local_file, 'rb') as pdf_file:
-            reader = PyPDF2.PdfReader(pdf_file)
-            resume_content = ""
-            for page in reader.pages:
-                resume_bucket += page.extract_text()
+        # Initialize the resume content
+        resume_content = ""
+        # Use PyPDF2 to read the PDF
+        reader = PyPDF2.PdfReader(pdf_stream)
+        for page in reader.pages:
+            resume_content += page.extract_text()
+
+        #print(resume_content)
         
         # Retrieve job description content from S3
         jd_obj = s3_client.get_object(Bucket=jd_bucket, Key=jd_key)
         job_description_content = jd_obj['Body'].read().decode('utf-8')
+
+        #print(job_description_content)
         
-        # Generate the prompt
-        prompt = f"""Analyze the compatibility between the following resume and job description. Provide a compatibility score from 0 to 100 and detailed feedback.
+        def generate():    # Generate the prompt
+            prompt = f"""Analyze the compatibility between the following resume and job description. Provide a compatibility score from 0 to 100 and detailed feedback.
 
-        Resume:
-        {resume_content}
+            Resume:
+            {resume_content}
 
-        Job Description:
-        {job_description_content}
+            Job Description:
+            {job_description_content}
 
-        Please format your response as a JSON object with two keys:
-        1. 'score': An integer from 0 to 100 representing the compatibility.
-        2. 'feedback': A string containing detailed feedback and suggestions."""
-        
-        # Generate feedback using OpenAI
-        client = OpenAI(
-            base_url="https://integrate.api.nvidia.com/v1",
-            api_key="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"
-        )
-        completion = client.chat.completions.create(
-            model="nvidia/llama-3.1-nemotron-70b-instruct",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            top_p=1,
-            max_tokens=1024
-        )
-        
-        feedback_content = completion.choices[0].message.content
+            Please format your response as a JSON object with two keys:
+            1. 'score': An integer from 0 to 100 representing the compatibility.
+            2. 'feedback': A string containing detailed feedback and suggestions.
+            
+            Please format your response strictly as a valid JSON object. Do not include any text outside the JSON object.
+            """
+            
+            # Generate feedback using OpenAI
+            client = OpenAI(
+                base_url="https://integrate.api.nvidia.com/v1",
+                api_key="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"
+            )
+            completion = client.chat.completions.create(
+                model="nvidia/llama-3.1-nemotron-70b-instruct",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.5,
+                top_p=1,
+                max_tokens=1024
+            )
+            
+            feedback_content = completion.choices[0].message.content
 
+            return feedback_content
+
+        feedback_content = generate()
         # Extract text between triple backticks
         match = re.search(r'```(.*?)```', feedback_content, re.DOTALL)
         if match:
             extracted_text = match.group(1)
         else:
-            extracted_text = "No text found between triple backticks."
+            generate()
         
         try:
-            cleaned_text = extracted_text.replace("\n", "").replace("\r", "")
-            feedback_json = json.loads(cleaned_text.strip())
+            #print(extracted_text)
+            cleaned_text = extracted_text.replace("json","").replace("\n", "").replace("\r", "")
+            #print(cleaned_text)
+            json_match = re.search(r'({.*})', cleaned_text)
+            if json_match:
+                json_block = json_match.group(1)
+                feedback_json = json.loads(json_block)
         except json.JSONDecodeError:
             raise HTTPException(status_code=500, detail="Failed to decode feedback as JSON")
         
         # Store feedback in S3
-        feedback_key = f"{user_id}/feedback/feedback.json"
+        feedback_body = json.dumps(feedback_json)
+        feedback_key = f"{feedback_request.user_id}/feedback/feedback.json"
         s3_client.put_object(
             Bucket=resume_bucket,  # Assuming we use the same bucket as the resume
             Key=feedback_key,
-            Body=feedback_json,
+            Body=feedback_body,
             ContentType='application/json'
         )
         
@@ -243,7 +269,7 @@ def get_feedback_details(user_id: str):
         response = s3_client.get_object(Bucket=bucket_name, Key=feedback_key)
         feedback_content = response['Body'].read().decode('utf-8')
         feedback_data = json.loads(feedback_content)
-
+        print(feedback_data)
         return feedback_data
 
     except ClientError as e:

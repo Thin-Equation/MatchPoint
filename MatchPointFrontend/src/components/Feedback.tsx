@@ -10,15 +10,21 @@ export default function FeedbackPage() {
     const [textFeedback, setTextFeedback] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     
+    const [isFetched, setIsFetched] = useState(false); // To track if data is already fetched
+
     const fetchFeedbackData = async () => {
+        if (isFetched) return; // Prevent multiple calls if data is already fetched
+
         try {
             setIsLoading(true);
             const user_id = user?.sub; // Replace with the user ID of the logged-in user
             const response = await axios.get(`http://localhost:8000/api/get_feedback_details/${user_id}`);
-            const data = response.data;
+            //console.log(response.data);
+            const { score, feedback } = response.data;
 
-            setCompatibilityScore(data.score);
-            setTextFeedback(data.feedback);
+            setCompatibilityScore(score);
+            setTextFeedback(feedback);
+            setIsFetched(true); // Mark data as fetched
         } catch (error) {
             console.error('Error fetching feedback data:', error);
             setTextFeedback('An error occurred while fetching feedback. Please try again.');
@@ -29,7 +35,8 @@ export default function FeedbackPage() {
 
     useEffect(() => { 
         fetchFeedbackData();
-    });
+    }, []); // Empty dependency array ensures the API is called only once when the component mounts
+    
     
 
     
