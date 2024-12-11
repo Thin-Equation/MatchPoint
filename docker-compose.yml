@@ -89,3 +89,10 @@ services:
     networks:
       - matchpoint-network
     restart: unless-stopped
+  
+networks:
+  matchpoint-network:
+    driver: bridge
+
+volumes:
+  node_modules:

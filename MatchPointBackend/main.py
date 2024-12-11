@@ -1,5 +1,6 @@
 from io import BytesIO
 import json
+import os
 from typing import List
 from openai import OpenAI
 from pydantic import BaseModel
@@ -24,17 +25,17 @@ app.add_middleware(
 )
 
 # Azure SQL Database connection details
-AZURE_SQL_SERVER = "match-point.database.windows.net"
-AZURE_SQL_DB = "MatchPoint"
-AZURE_SQL_USER = "matchpoint"
-AZURE_SQL_PASSWORD = "Abc@12345"
+AZURE_SQL_SERVER = os.environ.get('AZURE_SQL_SERVER')
+AZURE_SQL_DB = os.environ.get('AZURE_SQL_DB')
+AZURE_SQL_USER = os.environ.get('AZURE_SQL_USER')
+AZURE_SQL_PASSWORD = os.environ.get('AZURE_SQL_PASSWORD')
 AZURE_SQL_PORT = 1433  # Default for SQL Server
 
 # AWS S3 configuration
-S3_BUCKET_NAME = 'match-point'
-AWS_ACCESS_KEY_ID = 'AKIA2CCC2FMGRQ6AEEUK'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_REGION = 'us-east-1'
+S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_REGION = os.environ.get('AWS_REGION')
 
 # Initialize S3 client
 s3_client = boto3.client('s3',
