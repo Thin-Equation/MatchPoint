@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: yourdockerhubusername/matchpoint-backend:latest
+    image: suhaskm23/matchpoint-backend:latest
     build:
       context: ./MatchPointBackend
       dockerfile: Dockerfile
