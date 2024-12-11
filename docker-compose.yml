@@ -1,7 +1,57 @@
+# version: '3.8'
+
+# services:
+#   frontend:
+#     build:
+#       context: ./MatchPointFrontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "80:80"
+#     environment:
+#       - VITE_API_URL=http://backend:8000
+#     volumes:
+#       - ./MatchPointFrontend:/app
+#       - /app/node_modules
+#     depends_on:
+#       - backend
+#     networks:
+#       - matchpoint-network
+#     restart: unless-stopped
+
+#   backend:
+#     build:
+#       context: ./MatchPointBackend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - AZURE_SQL_SERVER=match-point.database.windows.net
+#       - AZURE_SQL_DB=MatchPoint
+#       - AZURE_SQL_USER=matchpoint
+#       - AZURE_SQL_PASSWORD=Abc@12345
+#       - AWS_ACCESS_KEY_ID=AKIA2CCC2FMGRQ6AEEUK
+#       - AWS_SECRET_ACCESS_KEY=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
+#       - AWS_REGION=us-east-1
+#       - S3_BUCKET_NAME=match-point
+#     volumes:
+#       - ./MatchPointBackend:/app
+#     networks:
+#       - matchpoint-network
+#     restart: unless-stopped
+
+# networks:
+#   matchpoint-network:
+#     driver: bridge
+
+# volumes:
+#   node_modules:
+
+
 version: '3.8'
 
 services:
   frontend:
+    image: suhaskm23/matchpoint-frontend:latest
     build:
       context: ./MatchPointFrontend
       dockerfile: Dockerfile
@@ -19,29 +69,23 @@ services:
     restart: unless-stopped
 
   backend:
+    image: yourdockerhubusername/matchpoint-backend:latest
     build:
       context: ./MatchPointBackend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - AZURE_SQL_SERVER=match-point.database.windows.net
-      - AZURE_SQL_DB=MatchPoint
-      - AZURE_SQL_USER=matchpoint
-      - AZURE_SQL_PASSWORD=Abc@12345
-      - AWS_ACCESS_KEY_ID=AKIA2CCC2FMGRQ6AEEUK
-      - AWS_SECRET_ACCESS_KEY=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
-      - AWS_REGION=us-east-1
-      - S3_BUCKET_NAME=match-point
+      - AZURE_SQL_SERVER=${AZURE_SQL_SERVER}
+      - AZURE_SQL_DB=${AZURE_SQL_DB}
+      - AZURE_SQL_USER=${AZURE_SQL_USER}
+      - AZURE_SQL_PASSWORD=${AZURE_SQL_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
     volumes:
       - ./MatchPointBackend:/app
     networks:
       - matchpoint-network
     restart: unless-stopped
-
-networks:
-  matchpoint-network:
-    driver: bridge
-
-volumes:
-  node_modules:
