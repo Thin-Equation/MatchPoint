@@ -5,12 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    https: true,
     host: true,
     port: 80
     ,
     proxy: {
       '/api': {
-        target: 'http://backend:8000',
+        target: 'https://freematchpoint.com',
         changeOrigin: true,
       }
     }

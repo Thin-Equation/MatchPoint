@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost"],
+    allow_origins=["http://localhost", "https://freematchpoint.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -123,7 +123,12 @@ async def receive_user_details(user_details: UserDetails):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
 
+ 
 @app.post("/api/upload")
 async def upload_files(
     user_id: str = Form(...),

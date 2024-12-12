@@ -29,8 +29,8 @@ services:
       - AZURE_SQL_DB=MatchPoint
       - AZURE_SQL_USER=matchpoint
       - AZURE_SQL_PASSWORD=Abc@12345
-      - AWS_ACCESS_KEY_ID=AKIA2CCC2FMGRQ6AEEUK
-      - AWS_SECRET_ACCESS_KEY=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
+      - AWS_ACCESS_KEY_ID=AKIA2CCC2FMG2MHLD5TT
+      - AWS_SECRET_ACCESS_KEY=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
       - AWS_REGION=us-east-1
       - S3_BUCKET_NAME=match-point
     volumes:

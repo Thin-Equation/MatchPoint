@@ -18,7 +18,7 @@ export default function FeedbackPage() {
         try {
             setIsLoading(true);
             const user_id = user?.sub; // Replace with the user ID of the logged-in user
-            const response = await axios.get(`http://localhost:8000/api/get_feedback_details/${user_id}`);
+            const response = await axios.get(`https://freematchpoint.com/api/get_feedback_details/${user_id}`);
             //console.log(response.data);
             const { score, feedback } = response.data;
 
