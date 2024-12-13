@@ -38,14 +38,6 @@ network:
 #
 variables:                    # Pass environment variables as key value pairs.
 #  LOG_LEVEL: info
-  AZURE_SQL_SERVER: match-point.database.windows.net
-  AZURE_SQL_DB: MatchPoint
-  AZURE_SQL_USER: matchpoint
-  AZURE_SQL_PASSWORD: Abc@12345
-  AWS_ACCESS_KEY_ID: AKIA2CCC2FMG2MHLD5TT
-  AWS_SECRET_ACCESS_KEY: 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
-  AWS_REGION: us-east-1
-  S3_BUCKET_NAME: match-point
 
 #secrets:                      # Pass secrets from AWS Systems Manager (SSM) Parameter Store.
 #  GITHUB_TOKEN: GITHUB_TOKEN  # The key is the name of the environment variable, the value is the name of the SSM parameter.
